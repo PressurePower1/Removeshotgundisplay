@@ -1,0 +1,33 @@
+name: Build AmmoManager Mod
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 6
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: Restore & Build
+        run: |
+          dotnet build AmmoManager.csproj -c Release \
+            /p:BONELAB_PATH="${{ github.workspace }}/libs" \
+            /p:BONELAB_MODS_PATH="${{ github.workspace }}/libs" \
+            -o output
+
+      - name: Upload DLL
+        uses: actions/upload-artifact@v4
+        with:
+          name: AmmoManager
+          path: output/AmmoManager.dll
+          if-no-files-found: error
